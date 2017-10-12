@@ -6,14 +6,14 @@ using PooledArrays
 N=Int64(2e8); K=100;
 
 pool = [@sprintf "id%03d" k for k in 1:K]
-pool1 = [@sprintf "id%010d" k for k in 1:K]
+pool1 = [@sprintf "id%010d" k for k in 1:(N/K)]
 
 function randstrarray(pool, N)
     PooledArray(PooledArrays.RefArray(rand(UInt8(1):UInt8(100), N)), pool)
 end
 
 using JuliaDB
-@time T = IndexedTable(Columns([1:2*10^8;]), Columns(
+@time DT = IndexedTable(Columns([1:N;]), Columns(
   id1 = randstrarray(pool, N),
   id2 = randstrarray(pool, N),
   id3 = randstrarray(pool1, N),
@@ -46,13 +46,7 @@ function gen_datatable_synthetic(N, K)
     DataFrame(;gen_dict(N,K)...)
 end
 
-const N=Int64(2e8);
-const K=100;
-
 # @benchmark d1 = gen_dict(1,1)
 # @benchmark d1 = gen_dict(N,K)
-@time DT = gen_datatable_synthetic(N,K);
-@benchmark DT = gen_datatable_synthetic(N,K);
-
-const smallN=Int32(2e7)
-@benchmark DTsmall = gen_datatable_synthetic(smallN,K)
+@time DT_orig = gen_datatable_synthetic(N,K);
+@benchmark DT_orig = gen_datatable_synthetic(N,K);
