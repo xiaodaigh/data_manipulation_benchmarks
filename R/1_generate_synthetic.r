@@ -19,8 +19,52 @@ gen_datatable_synthetic <- function(N=2e8, K=100) {
 
 library(data.table)
 system.time(DT <- gen_datatable_synthetic())
-feather::write_feather(DT,file.path(data_path, "DT.feather"))
-fst::write.fst(DT,file.path(data_path, "DT.fst"))
+system.time(fst::write.fst(DT,file.path(data_path, "DT.fst")))
+system.time(feather::write_feather(DT,file.path(data_path, "DT.feather")))
+
+md = fst::fst.metadata(file.path(data_path, "DT.fst"))
+as.integer(md$NrOfRows)
+
+pt <- proc.time()
+for (i in seq(1,md$NrOfRows,1000000)) {
+  d = fst::read.fst(file.path(data_path, "DT.fst"),
+                from = i, to = i+1000000-1)
+  
+  summary(d)
+}
+timetaken(pt) #3:43
+
+library(future)
+plan(multiprocess)
+
+md <- fst::fst.metadata(file.path(data_path, "DT.fst"))
+pt <- proc.time()
+dd1 = future_lapply(seq(1,md$NrOfRows,1000000), function(i) {
+  d = fst::read.fst(file.path(data_path, "DT.fst"),
+                    from = i, to = i+1000000-1, columns = c("id1","v1"), as.data.table = T)
+  
+  d[,sum(v1),keyby = id1]
+})
+fnl1 = setDT(rbindlist(dd1))[,sum(V1),keyby=id1]
+timetaken(pt)
+
+
+pt <- proc.time()
+dd2 = future_lapply(seq(1,md$NrOfRows,1000000), function(i) {
+  d = fst::read.fst(file.path(data_path, "DT.fst"),
+                    from = i, to = i+1000000-1, columns = c("id1","v1"), as.data.table = T)
+  
+  d[,sum(v1),keyby = id1]
+})
+fnl2 = setDT(rbindlist(dd1))[,sum(V1),keyby=id1]
+timetaken(pt)
+
+
+cat("GB =", round(sum(gc()[,2])/1024, 3), "\n")
+#system.time(DT[, sum(v1), keyby=id1])  # elapsed is almost doubled
+pt <- proc.time()
+DT[, sum(v1), keyby=id1]
+timetaken(pt)
 
 # experiment with future
 # library(future)

@@ -3,3 +3,6 @@
 *.jl.mem
 deps/deps.jl
 .Rproj.user
+.RData
+.Rhistory
+*.Rproj
