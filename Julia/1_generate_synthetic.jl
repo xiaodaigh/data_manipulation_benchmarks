@@ -1,19 +1,20 @@
 # Sashi' IndexedTable version
-using Distributions
-using PooledArrays
+using Distributions, PooledArrays, Nulls
 #using DataFrames
 
-N=Int64(2e8); K=100;
+N=Int64(2e9/8); K=100;
 
 pool = [@sprintf "id%03d" k for k in 1:K]
 pool1 = [@sprintf "id%010d" k for k in 1:(N/K)]
+pool_withmissing = vcat(null, pool)
+pool1_withmssing = vcat(null, pool1)
 
 function randstrarray(pool, N)
-    PooledArray(PooledArrays.RefArray(rand(UInt8(1):UInt8(100), N)), pool)
+    PooledArray(PooledArrays.RefArray(rand(UInt8(1):UInt8(K), N)), pool)
 end
 
 using JuliaDB
-@time DT = IndexedTable(Columns([1:N;]), Columns(
+DT = IndexedTable(Columns([1:N;]), Columns(
   id1 = randstrarray(pool, N),
   id2 = randstrarray(pool, N),
   id3 = randstrarray(pool1, N),
@@ -23,7 +24,7 @@ using JuliaDB
   v1 =  rand(1:5, N),                          # int in range [1,5]
   v2 =  rand(1:5, N),                          # int in range [1,5]
   v3 =  rand(round.(rand(Uniform(0,100),100),4), N) # numeric e.g. 23.5749
- ))
+ ));
 
 # Oringal version
 using DataFrames, Distributions, BenchmarkTools;

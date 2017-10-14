@@ -1,14 +1,10 @@
-using Feather, DataFrames, BenchmarkTools
+# using BenchmarkTools
+using IndexedTables
 
-@benchmark aggregate(+, DT, by=(:id1,), with=:v1)
-
-# about 1min
-#@time const DT = Feather.read(data_path * "/dt.feather")
-# aggr(dt) = by(dt,:id1, subdt -> sum(subdt[:v1]))
-# aggr2(dt) = aggregate(dt[:,[:id1,:v1]], :id1, sum)
-#
-# @benchmark aggr2(DT)
-# @benchmark aggr2(DT)
-#
-# @benchmark aggr(DT)
-# @benchmark aggr(DT)
+# Pkg.checkout("JuliaDB")
+# Pkg.checkout("IndexedTables")
+# Pkg.checkout("PooledArrays")
+julia_results = [@elapsed IndexedTables.aggregate(+, DT, by=(:id1,), with=:v1) for i in 1:10]
+f = open("julia_results.jld","w")
+serialize(f,julia_results)
+close(f)
