@@ -70,7 +70,7 @@ res101 <- lapply(res100, function(x) {
   y[,test:= paste0("test",1:.N)]
   y
 }) %>% rbindlist
-write.csv(res101,paste0("output",Sys.Date(),".csv"))
+write.csv(res101,file.path("Results",paste0("r ",gsub(":","",Sys.time()),".csv")))
 
 # 
 # 
