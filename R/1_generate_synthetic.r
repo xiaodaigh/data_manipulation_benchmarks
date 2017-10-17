@@ -1,8 +1,8 @@
 source("R/0_setup.r")
 library(data.table)
 library(magrittr)
-library(compiler)
-enableJIT(3)
+# library(compiler)
+# enableJIT(3)
 
 #require(data.table)
 #' Generate Synthetic dat
@@ -61,13 +61,19 @@ r_syn_gen_test <- function() {
 
 res100 <- NULL
 for(i in 1:100) {
-  res100 <- c(res100, list(n_r_syn_gen_test(1)))
+  res100 <- c(res100, list(r_syn_gen_test()))
 }
 
 res101 <- lapply(res100, function(x) {
-  y = copy(x[[1]])
+  y = copy(x)
   setDT(y)
   y[,test:= paste0("test",1:.N)]
   y
 }) %>% rbindlist
 write.csv(res101,paste0("output",Sys.Date(),".csv"))
+
+# 
+# 
+# res101[,.N]
+# 
+# res101[test %in% c("test2", "test3"), mean(elapsed)]

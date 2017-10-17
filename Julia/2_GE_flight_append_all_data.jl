@@ -1,7 +1,7 @@
 path = "D:/data/InitialTrainingSet_rev1/"
 files = path .* readdir("D:/data/InitialTrainingSet_rev1/") .* "/ASDI/asdifpwaypoint.csv"
 
-addprocs()
+@time addprocs()
 using JuliaDB #43 seconds
 @time @everywhere using Dagger, IndexedTables, JuliaDB # 0.5 second
 @time df = JuliaDB.loadfiles(files, indexcols = ["asdiflightplanid", "ordinal"]);

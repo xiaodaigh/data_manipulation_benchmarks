@@ -1,8 +1,4 @@
 #using CSV
-
-
-
-
 # r_results = CSV.read(data_path*"\\output2017-10-14.csv")
 using RCall
 data_path = "D:\\git\\julia_r_python_ge_flight_quest"
@@ -37,3 +33,13 @@ mean(julia_results)/mean(r_results)
 
 mean(julia_results)
 mean(r_results)
+
+
+aa = a[:test] .== "test4"
+aaa = a[:test] .== "test5"
+r_results = a[aa | aaa,:elapsed]
+
+mean(r_results)
+
+using DataFrames
+by(a, :test, df -> mean(df[:elapsed]))
