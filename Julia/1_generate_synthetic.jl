@@ -4,21 +4,21 @@ using Distributions, PooledArrays, Nulls
 
 #using IndexedTables
 
-N=Int64(2e9/8); K=100;
+const N=Int64(2e9); const K=100;
 
-pool = [@sprintf "id%03d" k for k in 1:K]
-pool1 = [@sprintf "id%010d" k for k in 1:(N/K)]
-pool_withmissing = vcat(null, pool)
-pool1_withmssing = vcat(null, pool1)
+const pool = [@sprintf "id%03d" k for k in 1:K]
+const pool1 = [@sprintf "id%010d" k for k in 1:(N/K)]
+#const pool_withmissing = vcat(null, pool)
+#const pool1_withmssing = vcat(null, pool1)
 
 function randstrarray(pool, N)
     PooledArray(PooledArrays.RefArray(rand(UInt8(1):UInt8(K), N)), pool)
 end
 
-
 using JuliaDB
 srand(1)
-@time DT = IndexedTable(
+
+DT = IndexedTable(
   Columns(
     row_id = [1:N;]
     ),
@@ -33,7 +33,6 @@ srand(1)
     v2 =  rand(1:5, N),                          # int in range [1,5]
     v3 =  rand(round.(rand(Uniform(0,100),100),4), N) # numeric e.g. 23.5749
     ));
-
 
 # using DataFrames
 # srand(1)
